@@ -1,4 +1,4 @@
-# Sistem Manajemen Butik Pakaian
+<img width="1821" height="848" alt="image" src="https://github.com/user-attachments/assets/afa297c2-64af-40ee-9750-60b70e9729b2" /># Sistem Manajemen Butik Pakaian
 
 Project ini merupakan aplikasi **Backend API + Frontend sederhana**
 untuk manajemen data butik pakaian.
@@ -39,3 +39,4 @@ python -m http.server 8000
 ### Akses
 Frontend: http://127.0.0.1:8000
 Backend API: http://127.0.0.1:5000
+Dokumentasi API: http://127.0.0.1:5000/docs
