@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login</title>
+  <style>
+    body{font-family:Arial;background:#f4f4f6;margin:0}
+    .wrap{max-width:720px;margin:40px auto;padding:0 12px}
+    .card{background:#fff;padding:20px;border-radius:8px;box-shadow:0 6px 20px rgba(2,6,23,0.06)}
+    input{display:block;padding:8px;margin:8px 0;width:320px;border:1px solid #ddd;border-radius:6px}
+    button{padding:8px 12px;border:0;background:#0b74de;color:#fff;border-radius:6px;cursor:pointer}
+    .notice{padding:10px;border-radius:6px;margin-bottom:12px;display:none}
+    .ok{background:#ecfdf5;color:#064e3b;border:1px solid #bbf7d0}
+    .err{background:#ffefef;color:#8b0000;border:1px solid #f5c2c2}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div id="notice" class="notice"></div>
+    <div class="card">
+      <h2>Login</h2>
+      <label>Username</label>
+      <input id="username" placeholder="username" value="AdminAlex">
+      <label>Password</label>
+      <input id="password" placeholder="password" type="password" value="admin1234">
+      <div style="margin-top:12px">
+        <button id="btnLogin">Login</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+const BASE = "http://127.0.0.1:5000"; // ubah bila perlu
+
+function show(msg, kind='err'){
+  const n = document.getElementById('notice');
+  n.innerText = msg;
+  n.className = 'notice ' + (kind==='ok' ? 'ok' : 'err');
+  n.style.display = 'block';
+  setTimeout(()=> n.style.display='none', 3500);
+}
+
+async function apiFetch(path, opts={}) {
+  const headers = {'Content-Type':'application/json'};
+  const token = localStorage.getItem('access_token');
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  const res = await fetch(BASE + path, {
+    method: opts.method || 'GET',
+    headers,
+    credentials: 'include',
+    body: opts.body ? JSON.stringify(opts.body) : undefined
+  });
+  const text = await res.text();
+  let data;
+  try { data = text ? JSON.parse(text) : {}; } catch(e) { data = { raw: text }; }
+  if (!res.ok) throw { status: res.status, body: data };
+  return data;
+}
+
+document.getElementById('btnLogin').addEventListener('click', async () => {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  if (!username || !password) { show('Isi username & password'); return; }
+  try {
+    const data = await apiFetch('/login', { method: 'POST', body: { username, password }});
+    if (data.access_token) {
+      localStorage.setItem('access_token', data.access_token);
+      // redirect to dashboard
+      window.location.href = 'dashboard.html';
+    } else {
+      show('Login sukses (no token) — tidak bisa lanjut', 'err');
+    }
+  } catch(err) {
+    console.error(err);
+    show(err?.body?.error || 'Login gagal', 'err');
+  }
+});
+</script>
+</body>
+</html>
